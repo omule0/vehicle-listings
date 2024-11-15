@@ -135,7 +135,11 @@ export default function Home() {
         <Separator />
         
         {/* Search and Filters */}
-        <SearchFilters onSearch={handleSearch} onFilter={handleFilter} />
+        <SearchFilters 
+          onSearch={handleSearch} 
+          onFilter={handleFilter} 
+          activeFilters={filters}
+        />
         
         {/* Loading State */}
         {loading && (
