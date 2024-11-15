@@ -13,6 +13,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Home() {
   const [vehicles, setVehicles] = useState([]);
@@ -118,8 +119,29 @@ export default function Home() {
         
         {/* Loading and Error States */}
         {loading && (
-          <div className="flex justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, index) => (
+              <div
+                key={index}
+                className="border rounded-lg p-4 space-y-3"
+              >
+                <Skeleton className="h-4 w-3/4" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+                <div className="pt-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-16" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
         
@@ -143,27 +165,31 @@ export default function Home() {
         )}
         
         {/* Pagination */}
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={!pagination.previous}
-              />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink>
-                Page {currentPage} of {Math.ceil(pagination.count / 10)}
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext 
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                disabled={!pagination.next}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <div className="mt-8 flex justify-center">
+          <Pagination>
+            <PaginationContent className="gap-4">
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={!pagination.previous}
+                  className="hover:bg-accent"
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink className="min-w-[100px] text-center">
+                  Page {currentPage} of {Math.ceil(pagination.count / 10)}
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  disabled={!pagination.next}
+                  className="hover:bg-accent"
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
 
       {selectedVehicle && (
