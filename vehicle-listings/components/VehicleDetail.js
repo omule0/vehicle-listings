@@ -49,7 +49,11 @@ export default function VehicleDetail({ vehicle, onClose }) {
               <h3 className="font-semibold mb-2">Included Features</h3>
               <div className="flex flex-wrap gap-2">
                 {vehicle.included_features.map((feature, index) => (
-                  <Badge key={index} variant="secondary">
+                  <Badge 
+                    key={index} 
+                    variant="outline"
+                    className="bg-white text-secondary border-secondary hover:bg-secondary/10"
+                  >
                     {feature}
                   </Badge>
                 ))}

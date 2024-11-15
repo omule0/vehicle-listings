@@ -41,14 +41,12 @@ export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }
       .map(([key, value]) => (
         <Badge 
           key={key} 
-          variant="secondary"
-          className="flex items-center gap-1"
+          variant="outline"
+          className="bg-white text-secondary border-secondary hover:bg-secondary/10 flex items-center gap-1"
+          onClick={() => onFilter(key, 'all')}
         >
-          {`${key}: ${value}`}
-          <X 
-            className="h-3 w-3 cursor-pointer" 
-            onClick={() => onFilter(key, 'all')}
-          />
+          {key}: {value}
+          <X className="h-3 w-3" />
         </Badge>
       ));
   };

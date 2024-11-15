@@ -7,7 +7,7 @@ export default function VehicleCard({ vehicle, onClick }) {
   return (
     <Card 
       onClick={() => onClick(vehicle)}
-      className="hover:shadow-lg transition-shadow cursor-pointer relative"
+      className="hover:shadow-lg transition-shadow cursor-pointer relative border-muted"
     >
       <a 
         href={vehicle.url}
@@ -48,7 +48,11 @@ export default function VehicleCard({ vehicle, onClick }) {
       <CardFooter>
         <div className="flex flex-wrap gap-2">
           {vehicle.included_features.slice(0, 3).map((feature, index) => (
-            <Badge key={index} variant="secondary">
+            <Badge 
+              key={index} 
+              variant="outline"
+              className="bg-white text-secondary border-secondary hover:bg-secondary/10"
+            >
               {feature}
             </Badge>
           ))}
