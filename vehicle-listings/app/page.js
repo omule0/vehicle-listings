@@ -28,9 +28,19 @@ export default function Home() {
     next: null,
     previous: null
   });
+  const [cachedData, setCachedData] = useState({});
 
   useEffect(() => {
-    fetchVehicles();
+    if (cachedData[currentPage]) {
+      setVehicles(cachedData[currentPage].results);
+      setPagination({
+        count: cachedData[currentPage].count,
+        next: cachedData[currentPage].next,
+        previous: cachedData[currentPage].previous
+      });
+    } else {
+      fetchVehicles();
+    }
   }, [currentPage, filters]);
 
   const fetchVehicles = async () => {
@@ -46,6 +56,11 @@ export default function Home() {
       );
       const data = await response.json();
       
+      setCachedData(prev => ({
+        ...prev,
+        [currentPage]: data
+      }));
+      
       setVehicles(data.results);
       setPagination({
         count: data.count,
@@ -58,6 +73,10 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setCachedData({});
+  }, [filters]);
 
   const handleSearch = (searchTerm) => {
     setFilters(prev => ({ ...prev, search: searchTerm }));
