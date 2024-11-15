@@ -1,13 +1,24 @@
 'use client';
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ExternalLink } from "lucide-react";
 
 export default function VehicleCard({ vehicle, onClick }) {
   return (
     <Card 
       onClick={() => onClick(vehicle)}
-      className="hover:shadow-lg transition-shadow cursor-pointer"
+      className="hover:shadow-lg transition-shadow cursor-pointer relative"
     >
+      <a 
+        href={vehicle.url}
+        className="absolute top-2 right-2 text-muted-foreground hover:text-primary"
+        onClick={(e) => e.stopPropagation()}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <ExternalLink className="h-4 w-4" />
+      </a>
+
       <CardHeader>
         <h2 className="text-xl font-semibold">{vehicle.main_category}</h2>
         <p className="text-2xl font-bold text-primary">{vehicle.current_price}</p>
@@ -29,7 +40,7 @@ export default function VehicleCard({ vehicle, onClick }) {
           </div>
           <div>
             <p className="text-muted-foreground">Transmission</p>
-            <p className="font-medium">{vehicle.pickup_specs.Trans}</p>
+            <p className="font-medium">{vehicle.pickup_specs["Trans."]}</p>
           </div>
         </div>
       </CardContent>
