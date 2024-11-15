@@ -1,8 +1,18 @@
 'use client';
 import { useState, useEffect } from "react";
-import SearchFilters from './components/SearchFilters';
-import VehicleCard from './components/VehicleCard';
-import VehicleDetail from './components/VehicleDetail';
+import SearchFilters from "@/components/SearchFilters";
+import VehicleCard from "@/components/VehicleCard";
+import VehicleDetail from "@/components/VehicleDetail";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState([]);
@@ -12,22 +22,34 @@ export default function Home() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({});
-  const vehiclesPerPage = 9;
+  const [pagination, setPagination] = useState({
+    count: 0,
+    next: null,
+    previous: null
+  });
 
   useEffect(() => {
     fetchVehicles();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [vehicles, filters]);
+  }, [currentPage, filters]);
 
   const fetchVehicles = async () => {
     try {
-      const response = await fetch('https://da-scraper-api-uqxz6.ondigitalocean.app/car-details');
+      const queryParams = new URLSearchParams({
+        page: currentPage,
+        ...filters
+      });
+      
+      const response = await fetch(
+        `https://da-scraper-api-uqxz6.ondigitalocean.app/car-details/?${queryParams}`
+      );
       const data = await response.json();
+      
       setVehicles(data.results);
-      setFilteredVehicles(data.results);
+      setPagination({
+        count: data.count,
+        next: data.next,
+        previous: data.previous
+      });
       setLoading(false);
     } catch (err) {
       setError('Failed to fetch vehicles');
@@ -53,19 +75,19 @@ export default function Home() {
       );
     }
 
-    if (filters.transmission) {
+    if (filters.transmission && filters.transmission !== 'all') {
       filtered = filtered.filter(vehicle => 
         vehicle.pickup_specs.Trans.includes(filters.transmission)
       );
     }
 
-    if (filters.fuel) {
+    if (filters.fuel && filters.fuel !== 'all') {
       filtered = filtered.filter(vehicle => 
         vehicle.pickup_specs.Fuel.includes(filters.fuel)
       );
     }
 
-    if (filters.priceRange) {
+    if (filters.priceRange && filters.priceRange !== 'all') {
       const [min, max] = filters.priceRange.split('-').map(price => 
         price === '+' ? Infinity : Number(price)
       );
@@ -78,47 +100,70 @@ export default function Home() {
     setFilteredVehicles(filtered);
   };
 
-  const paginatedVehicles = filteredVehicles.slice(
-    (currentPage - 1) * vehiclesPerPage,
-    currentPage * vehiclesPerPage
-  );
-
-  const totalPages = Math.ceil(filteredVehicles.length / vehiclesPerPage);
-
-  if (loading) return <div className="flex justify-center p-8">Loading...</div>;
-  if (error) return <div className="text-red-500 p-8">{error}</div>;
+  const totalPages = Math.ceil(pagination.count / 10);
 
   return (
-    <main className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Vehicle Listings</h1>
-      
-      <SearchFilters onSearch={handleSearch} onFilter={handleFilter} />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {paginatedVehicles.map((vehicle) => (
-          <VehicleCard 
-            key={vehicle.id} 
-            vehicle={vehicle} 
-            onClick={setSelectedVehicle}
-          />
-        ))}
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-center gap-2 mt-8">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i + 1}
-            onClick={() => setCurrentPage(i + 1)}
-            className={`px-3 py-1 rounded ${
-              currentPage === i + 1 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-6 space-y-8">
+        {/* Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Vehicle Listings</h1>
+          <p className="text-muted-foreground">Browse and filter available vehicles.</p>
+        </div>
+        
+        <Separator />
+        
+        {/* Search and Filters */}
+        <SearchFilters onSearch={handleSearch} onFilter={handleFilter} />
+        
+        {/* Loading and Error States */}
+        {loading && (
+          <div className="flex justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        )}
+        
+        {error && (
+          <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-md">
+            {error}
+          </div>
+        )}
+        
+        {/* Vehicle Grid */}
+        {!loading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {vehicles.map((vehicle) => (
+              <VehicleCard 
+                key={vehicle.id} 
+                vehicle={vehicle} 
+                onClick={setSelectedVehicle}
+              />
+            ))}
+          </div>
+        )}
+        
+        {/* Pagination */}
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={!pagination.previous}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink>
+                Page {currentPage} of {Math.ceil(pagination.count / 10)}
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                disabled={!pagination.next}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
 
       {selectedVehicle && (
@@ -127,6 +172,6 @@ export default function Home() {
           onClose={() => setSelectedVehicle(null)} 
         />
       )}
-    </main>
+    </div>
   );
 }
