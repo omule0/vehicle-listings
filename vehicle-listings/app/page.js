@@ -125,14 +125,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-6 space-y-8">
+      <div className="container mx-auto py-4 space-y-6">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Vehicle Listings</h1>
-          <p className="text-muted-foreground">Browse and filter available vehicles.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold">Vehicle Listings</h1>
+            <p className="text-sm text-muted-foreground">{pagination.count} vehicles available</p>
+          </div>
         </div>
         
-        <Separator />
+        <Separator className="my-2" />
         
         {/* Search and Filters */}
         <SearchFilters 
