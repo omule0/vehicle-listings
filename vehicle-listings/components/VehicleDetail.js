@@ -7,6 +7,16 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { 
+  Calendar, 
+  Gauge, 
+  Settings2, 
+  Fuel,
+  DollarSign, 
+  Car, 
+  Truck, 
+  Ship 
+} from "lucide-react";
 
 export default function VehicleDetail({ vehicle, onClose }) {
   if (!vehicle) return null;
@@ -23,10 +33,18 @@ export default function VehicleDetail({ vehicle, onClose }) {
             <div>
               <h3 className="font-semibold mb-2">Basic Information</h3>
               <div className="space-y-2">
-                <p><span className="text-muted-foreground">Current Price:</span> {vehicle.current_price}</p>
-                <p><span className="text-muted-foreground">Total Price:</span> {vehicle.total_price}</p>
-                <p><span className="text-muted-foreground">Model:</span> {vehicle.model_name}</p>
-                <p><span className="text-muted-foreground">Year:</span> {vehicle.pickup_specs.Year}</p>
+                <p><span className="text-muted-foreground flex items-center gap-1">
+                  <DollarSign className="h-4 w-4" /> Current Price:
+                </span> {vehicle.current_price}</p>
+                <p><span className="text-muted-foreground flex items-center gap-1">
+                  <DollarSign className="h-4 w-4" /> Total Price:
+                </span> {vehicle.total_price}</p>
+                <p><span className="text-muted-foreground flex items-center gap-1">
+                  <Car className="h-4 w-4" /> Model:
+                </span> {vehicle.model_name}</p>
+                <p><span className="text-muted-foreground flex items-center gap-1">
+                  <Calendar className="h-4 w-4" /> Year:
+                </span> {vehicle.pickup_specs.Year}</p>
               </div>
             </div>
 
@@ -65,9 +83,15 @@ export default function VehicleDetail({ vehicle, onClose }) {
             <div>
               <h3 className="font-semibold mb-2">Shipping Information</h3>
               <div className="space-y-2">
-                <p><span className="text-muted-foreground">Type:</span> {vehicle.shipping_type}</p>
-                <p><span className="text-muted-foreground">Inspection:</span> {vehicle.shipping_inspection}</p>
-                <p><span className="text-muted-foreground">Destination:</span> {vehicle.shipping_destination}</p>
+                <p><span className="text-muted-foreground flex items-center gap-1">
+                  <Truck className="h-4 w-4" /> Type:
+                </span> {vehicle.shipping_type}</p>
+                <p><span className="text-muted-foreground flex items-center gap-1">
+                  <Ship className="h-4 w-4" /> Inspection:
+                </span> {vehicle.shipping_inspection}</p>
+                <p><span className="text-muted-foreground flex items-center gap-1">
+                  <Ship className="h-4 w-4" /> Destination:
+                </span> {vehicle.shipping_destination}</p>
               </div>
             </div>
           </div>

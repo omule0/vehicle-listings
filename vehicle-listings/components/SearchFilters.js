@@ -4,7 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { X, Search, Filter } from "lucide-react";
+import { 
+  X, 
+  Search, 
+  Settings2, 
+  Fuel, 
+  DollarSign, 
+  Calendar 
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }) {
@@ -97,6 +104,7 @@ export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }
             onValueChange={(value) => onFilter('transmission', value)}
           >
             <SelectTrigger>
+              <Settings2 className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Transmission" />
             </SelectTrigger>
             <SelectContent>
@@ -112,6 +120,7 @@ export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }
             onValueChange={(value) => onFilter('fuel', value)}
           >
             <SelectTrigger>
+              <Fuel className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Fuel Type" />
             </SelectTrigger>
             <SelectContent>
@@ -127,6 +136,7 @@ export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }
             onValueChange={(value) => onFilter('priceRange', value)}
           >
             <SelectTrigger>
+              <DollarSign className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Price Range" />
             </SelectTrigger>
             <SelectContent>
@@ -143,6 +153,7 @@ export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }
             onValueChange={(value) => onFilter('year', value)}
           >
             <SelectTrigger>
+              <Calendar className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Year" />
             </SelectTrigger>
             <SelectContent>
