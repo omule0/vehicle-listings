@@ -34,6 +34,7 @@ export default function Home() {
   }, [currentPage, filters]);
 
   const fetchVehicles = async () => {
+    setLoading(true);
     try {
       const queryParams = new URLSearchParams({
         page: currentPage,
@@ -51,9 +52,9 @@ export default function Home() {
         next: data.next,
         previous: data.previous
       });
-      setLoading(false);
     } catch (err) {
       setError('Failed to fetch vehicles');
+    } finally {
       setLoading(false);
     }
   };
@@ -117,35 +118,47 @@ export default function Home() {
         {/* Search and Filters */}
         <SearchFilters onSearch={handleSearch} onFilter={handleFilter} />
         
-        {/* Loading and Error States */}
+        {/* Loading State */}
         {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, index) => (
-              <div
-                key={index}
-                className="border rounded-lg p-4 space-y-3"
-              >
-                <Skeleton className="h-4 w-3/4" />
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-4 w-1/3" />
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-                <div className="pt-2">
-                  <div className="flex flex-wrap gap-2">
-                    <Skeleton className="h-5 w-16" />
-                    <Skeleton className="h-5 w-16" />
-                    <Skeleton className="h-5 w-16" />
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, index) => (
+                <div
+                  key={index}
+                  className="border rounded-lg p-4 space-y-3"
+                >
+                  <Skeleton className="h-6 w-3/4" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                  <div className="pt-2">
+                    <div className="flex flex-wrap gap-2">
+                      <Skeleton className="h-5 w-16" />
+                      <Skeleton className="h-5 w-16" />
+                      <Skeleton className="h-5 w-16" />
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Pagination Skeleton */}
+            <div className="flex justify-center">
+              <div className="flex items-center gap-8">
+                <Skeleton className="h-10 w-24" /> {/* Previous button */}
+                <Skeleton className="h-10 w-32" /> {/* Page indicator */}
+                <Skeleton className="h-10 w-24" /> {/* Next button */}
               </div>
-            ))}
+            </div>
           </div>
         )}
         
-        {error && (
+        {/* Error State */}
+        {error && !loading && (
           <div className="bg-destructive/10 text-destructive px-4 py-2 rounded-md">
             {error}
           </div>
@@ -153,43 +166,45 @@ export default function Home() {
         
         {/* Vehicle Grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {vehicles.map((vehicle) => (
-              <VehicleCard 
-                key={vehicle.id} 
-                vehicle={vehicle} 
-                onClick={setSelectedVehicle}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {vehicles.map((vehicle) => (
+                <VehicleCard 
+                  key={vehicle.id} 
+                  vehicle={vehicle} 
+                  onClick={setSelectedVehicle}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-8 flex justify-center">
+              <Pagination>
+                <PaginationContent className="gap-8">
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={!pagination.previous}
+                      className="hover:bg-accent"
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLink className="min-w-[100px] text-center">
+                      Page {currentPage} of {Math.ceil(pagination.count / 10)}
+                    </PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(prev => prev + 1)}
+                      disabled={!pagination.next}
+                      className="hover:bg-accent"
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          </>
         )}
-        
-        {/* Pagination */}
-        <div className="mt-8 flex justify-center">
-          <Pagination>
-            <PaginationContent className="gap-4">
-              <PaginationItem>
-                <PaginationPrevious 
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={!pagination.previous}
-                  className="hover:bg-accent"
-                />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink className="min-w-[100px] text-center">
-                  Page {currentPage} of {Math.ceil(pagination.count / 10)}
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext 
-                  onClick={() => setCurrentPage(prev => prev + 1)}
-                  disabled={!pagination.next}
-                  className="hover:bg-accent"
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
       </div>
 
       {selectedVehicle && (
