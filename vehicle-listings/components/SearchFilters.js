@@ -17,24 +17,39 @@ import { Badge } from "@/components/ui/badge";
 export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Debounce search input
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       setDebouncedSearch(searchTerm);
-      onSearch(searchTerm);
+      try {
+        setIsLoading(true);
+        await onSearch(searchTerm);
+      } catch (error) {
+        console.error('Search error:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }, 300);
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
   // Clear all filters
-  const handleClearFilters = () => {
+  const handleClearFilters = async () => {
     setSearchTerm('');
-    onSearch('');
-    Object.keys(activeFilters).forEach(key => {
-      onFilter(key, 'all');
-    });
+    try {
+      setIsLoading(true);
+      await onSearch('');
+      await Promise.all(
+        Object.keys(activeFilters).map(key => onFilter(key, 'all'))
+      );
+    } catch (error) {
+      console.error('Clear filters error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Get active filter count
@@ -64,13 +79,14 @@ export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }
         {/* Search Bar */}
         <div className="flex gap-4">
           <div className="relative flex-1 max-w-xl">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground ${isLoading ? 'animate-spin' : ''}`} />
             <Input
               type="text"
               value={searchTerm}
               placeholder="Search vehicles..."
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
+              disabled={isLoading}
             />
             {searchTerm && (
               <X
