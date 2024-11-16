@@ -31,44 +31,37 @@ export default function Home() {
   const [cachedData, setCachedData] = useState({});
 
   useEffect(() => {
-    if (cachedData[currentPage]) {
-      setVehicles(cachedData[currentPage].results);
-      setPagination({
-        count: cachedData[currentPage].count,
-        next: cachedData[currentPage].next,
-        previous: cachedData[currentPage].previous
-      });
-    } else {
-      fetchVehicles();
-    }
-  }, [currentPage, filters]);
+    const fetchData = async () => {
+      if (cachedData[currentPage]) {
+        setVehicles(cachedData[currentPage].results);
+        setPagination({
+          count: cachedData[currentPage].count,
+          next: cachedData[currentPage].next,
+          previous: cachedData[currentPage].previous
+        });
+      } else {
+        await fetchVehicles();
+      }
+    };
+    
+    fetchData();
+  }, [currentPage, JSON.stringify(filters)]);
 
   const fetchVehicles = async () => {
     setLoading(true);
     setError(null);
     try {
-      const activeFilters = {};
-      
-      if (filters.transmission && filters.transmission !== 'all') {
-        activeFilters.transmission = filters.transmission;
-      }
-      if (filters.fuel && filters.fuel !== 'all') {
-        activeFilters.fuel = filters.fuel;
-      }
-      if (filters.priceRange && filters.priceRange !== 'all') {
-        activeFilters.priceRange = filters.priceRange;
-      }
-      if (filters.year && filters.year !== 'all') {
-        activeFilters.year = filters.year;
-      }
-      if (filters.search) {
-        activeFilters.search = filters.search;
-      }
-      
       const queryParams = new URLSearchParams({
-        page: currentPage,
-        ...activeFilters
+        page: currentPage.toString()
       });
+
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value !== 'all') {
+          queryParams.append(key, value);
+        }
+      });
+      
+      console.log('Fetching with params:', queryParams.toString());
       
       const response = await fetch(
         `https://da-scraper-api-uqxz6.ondigitalocean.app/car-details/?${queryParams}`
@@ -99,12 +92,8 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    setCachedData({});
-    setCurrentPage(1);
-  }, [filters]);
-
   const handleSearch = async (searchTerm) => {
+    setCachedData({});
     setFilters(prev => ({
       ...prev,
       search: searchTerm || undefined
@@ -112,10 +101,17 @@ export default function Home() {
   };
 
   const handleFilter = async (filterType, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value === 'all' ? undefined : value
-    }));
+    setCachedData({});
+    setFilters(prev => {
+      const newFilters = {
+        ...prev,
+        [filterType]: value === 'all' ? undefined : value
+      };
+      Object.keys(newFilters).forEach(key => 
+        newFilters[key] === undefined && delete newFilters[key]
+      );
+      return newFilters;
+    });
   };
 
   const totalPages = Math.ceil(pagination.count / 10);
