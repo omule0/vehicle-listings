@@ -14,6 +14,31 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton"
+import { Search } from "lucide-react"
+
+// Add this new component for the no results state
+const NoResults = ({ filters }) => (
+  <div className="flex flex-col items-center justify-center py-12 text-center">
+    <div className="mb-4 text-muted-foreground">
+      <Search className="h-12 w-12 mx-auto mb-4" />
+      <h3 className="text-lg font-semibold mb-2">No vehicles found</h3>
+      <p className="text-sm text-muted-foreground">
+        {Object.keys(filters).length > 0 
+          ? "Try adjusting your filters or search criteria"
+          : "No vehicles are currently available"}
+      </p>
+    </div>
+    {Object.keys(filters).length > 0 && (
+      <Button 
+        variant="outline" 
+        className="mt-4"
+        onClick={() => window.location.reload()}
+      >
+        Clear all filters
+      </Button>
+    )}
+  </div>
+);
 
 export default function Home() {
   const [vehicles, setVehicles] = useState([]);
@@ -123,7 +148,11 @@ export default function Home() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold">Vehicle Listings</h1>
-            <p className="text-sm text-muted-foreground">{pagination.count} vehicles available</p>
+            <p className="text-sm text-muted-foreground">
+              {pagination.count > 0 
+                ? `${pagination.count} vehicles available` 
+                : "No vehicles available"}
+            </p>
           </div>
         </div>
         
@@ -182,45 +211,51 @@ export default function Home() {
           </div>
         )}
         
-        {/* Vehicle Grid */}
+        {/* Vehicle Grid or No Results */}
         {!loading && !error && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {vehicles.map((vehicle) => (
-                <VehicleCard 
-                  key={vehicle.id} 
-                  vehicle={vehicle} 
-                  onClick={setSelectedVehicle}
-                />
-              ))}
-            </div>
+            {vehicles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {vehicles.map((vehicle) => (
+                  <VehicleCard 
+                    key={vehicle.id} 
+                    vehicle={vehicle} 
+                    onClick={setSelectedVehicle}
+                  />
+                ))}
+              </div>
+            ) : (
+              <NoResults filters={filters} />
+            )}
 
-            {/* Pagination */}
-            <div className="mt-8 flex justify-center">
-              <Pagination>
-                <PaginationContent className="gap-8">
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={!pagination.previous}
-                      className="hover:bg-accent"
-                    />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationLink className="min-w-[100px] text-center">
-                      Page {currentPage} of {Math.ceil(pagination.count / 10)}
-                    </PaginationLink>
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => setCurrentPage(prev => prev + 1)}
-                      disabled={!pagination.next}
-                      className="hover:bg-accent"
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
+            {/* Pagination - Only show if there are results */}
+            {vehicles.length > 0 && (
+              <div className="mt-8 flex justify-center">
+                <Pagination>
+                  <PaginationContent className="gap-8">
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={!pagination.previous}
+                        className="hover:bg-accent"
+                      />
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLink className="min-w-[100px] text-center">
+                        Page {currentPage} of {Math.ceil(pagination.count / 10)}
+                      </PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPage(prev => prev + 1)}
+                        disabled={!pagination.next}
+                        className="hover:bg-accent"
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </>
         )}
       </div>
