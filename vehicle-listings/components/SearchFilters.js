@@ -125,9 +125,8 @@ export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Transmissions</SelectItem>
-              <SelectItem value="AT">Automatic</SelectItem>
-              <SelectItem value="MT">Manual</SelectItem>
-              <SelectItem value="CVT">CVT</SelectItem>
+              <SelectItem value="automatic">Automatic</SelectItem>
+              <SelectItem value="manual">Manual</SelectItem>
             </SelectContent>
           </Select>
 
@@ -142,8 +141,9 @@ export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }
             <SelectContent>
               <SelectItem value="all">All Fuel Types</SelectItem>
               <SelectItem value="Petrol">Petrol</SelectItem>
-              <SelectItem value="Hybrid">Hybrid</SelectItem>
               <SelectItem value="Diesel">Diesel</SelectItem>
+              <SelectItem value="Hybrid">Hybrid</SelectItem>
+              <SelectItem value="Electric">Electric</SelectItem>
             </SelectContent>
           </Select>
 
