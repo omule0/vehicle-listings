@@ -45,15 +45,39 @@ export default function Home() {
 
   const fetchVehicles = async () => {
     setLoading(true);
+    setError(null);
     try {
+      const activeFilters = {};
+      
+      if (filters.transmission && filters.transmission !== 'all') {
+        activeFilters.transmission = filters.transmission;
+      }
+      if (filters.fuel && filters.fuel !== 'all') {
+        activeFilters.fuel = filters.fuel;
+      }
+      if (filters.priceRange && filters.priceRange !== 'all') {
+        activeFilters.priceRange = filters.priceRange;
+      }
+      if (filters.year && filters.year !== 'all') {
+        activeFilters.year = filters.year;
+      }
+      if (filters.search) {
+        activeFilters.search = filters.search;
+      }
+      
       const queryParams = new URLSearchParams({
         page: currentPage,
-        ...filters
+        ...activeFilters
       });
       
       const response = await fetch(
         `https://da-scraper-api-uqxz6.ondigitalocean.app/car-details/?${queryParams}`
       );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
       setCachedData(prev => ({
@@ -69,6 +93,7 @@ export default function Home() {
       });
     } catch (err) {
       setError('Failed to fetch vehicles');
+      console.error('Fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -76,49 +101,21 @@ export default function Home() {
 
   useEffect(() => {
     setCachedData({});
+    setCurrentPage(1);
   }, [filters]);
 
-  const handleSearch = (searchTerm) => {
-    setFilters(prev => ({ ...prev, search: searchTerm }));
+  const handleSearch = async (searchTerm) => {
+    setFilters(prev => ({
+      ...prev,
+      search: searchTerm || undefined
+    }));
   };
 
-  const handleFilter = (filterType, value) => {
-    setFilters(prev => ({ ...prev, [filterType]: value }));
-    setCurrentPage(1);
-  };
-
-  const applyFilters = () => {
-    let filtered = [...vehicles];
-
-    if (filters.search) {
-      filtered = filtered.filter(vehicle => 
-        vehicle.main_category.toLowerCase().includes(filters.search.toLowerCase())
-      );
-    }
-
-    if (filters.transmission && filters.transmission !== 'all') {
-      filtered = filtered.filter(vehicle => 
-        vehicle.pickup_specs.Trans.includes(filters.transmission)
-      );
-    }
-
-    if (filters.fuel && filters.fuel !== 'all') {
-      filtered = filtered.filter(vehicle => 
-        vehicle.pickup_specs.Fuel.includes(filters.fuel)
-      );
-    }
-
-    if (filters.priceRange && filters.priceRange !== 'all') {
-      const [min, max] = filters.priceRange.split('-').map(price => 
-        price === '+' ? Infinity : Number(price)
-      );
-      filtered = filtered.filter(vehicle => {
-        const price = Number(vehicle.current_price.replace(/[^0-9.-]+/g, ''));
-        return price >= min && (max === Infinity || price <= max);
-      });
-    }
-
-    setFilteredVehicles(filtered);
+  const handleFilter = async (filterType, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value === 'all' ? undefined : value
+    }));
   };
 
   const totalPages = Math.ceil(pagination.count / 10);

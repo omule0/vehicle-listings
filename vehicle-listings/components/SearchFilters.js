@@ -125,8 +125,8 @@ export default function SearchFilters({ onSearch, onFilter, activeFilters = {} }
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Transmissions</SelectItem>
-              <SelectItem value="automatic">Automatic</SelectItem>
-              <SelectItem value="manual">Manual</SelectItem>
+              <SelectItem value="AT">Automatic</SelectItem>
+              <SelectItem value="MT">Manual</SelectItem>
             </SelectContent>
           </Select>
 
